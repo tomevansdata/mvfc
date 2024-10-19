@@ -1,5 +1,5 @@
 folium
-streamlit_extra
+streamlit_extras
 streamlit_folium
 gspread
-oauth2client.service_account
+oauth2client
