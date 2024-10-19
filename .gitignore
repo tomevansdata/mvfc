@@ -56,3 +56,4 @@ junit.xml
 .databricks/*
 _scratch/
 *poetry.lock
+.streamlit

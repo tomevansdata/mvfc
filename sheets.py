@@ -1,5 +1,4 @@
 import gspread
-import json
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import streamlit as st
@@ -13,9 +12,8 @@ def get_sheet_data(sheet_name: str) -> pd.DataFrame:
     
     google_sheets_creds = st.secrets["google_sheets"]
     
-    creds_json = json.dumps(google_sheets_creds)
     #creds = ServiceAccountCredentials.from_json_keyfile_name("creds/tom_mvfc.json", scope)
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(creds_json), scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(google_sheets_creds, scope)
     client = gspread.authorize(creds)
 
     spreadsheet_name = "MVFC Coaches"
