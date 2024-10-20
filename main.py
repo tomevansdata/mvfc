@@ -70,4 +70,5 @@ if selected_match and selected_match != "All":
     if mobile_site is False:
         st.markdown(f"<br><br>", unsafe_allow_html=True)
     
-    lineups(match_row=match_row, mobile_site=mobile_site)
+    if match_row["Score"] != "A-A":
+        lineups(match_row=match_row, mobile_site=mobile_site)
