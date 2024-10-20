@@ -1,24 +1,30 @@
 import pandas as pd
 import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
-from streamlit_extras.stylable_container import stylable_container
 
-from display import lineups, match_report, scorecard
-from sheets import get_sheet_data
+from display import lineups, match_report, match_report_mobile, scorecard, scorecard_mobile
+from sheets import get_data
 
 st.set_page_config(layout="wide")
 
-#st.write(f"Screen width is {(streamlit_js_eval(js_expressions='screen.width', key = 'SCR'))}")
-
 ### Get Data ###
-df = get_sheet_data("MatchData")
+df = get_data("MatchData")
 
-st.markdown("""
+screen_width = streamlit_js_eval(js_expressions='screen.width', key = 'SCR')
+mobile_site = False
+max_width = 800
+
+if screen_width is not None and screen_width < 650:
+    mobile_site = True
+    max_width = screen_width
+
+### Set container width
+st.markdown(f"""
     <style>
-    .block-container {
-        max-width: 800px;
+    .block-container {{
+        max-width: {max_width}px;
         margin: auto;
-    }
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -51,11 +57,17 @@ if selected_match and selected_match != "All":
     
     match_row = filtered_df[filtered_df["Match_Desc"] == selected_match].iloc[0]
     
-    scorecard(match_row=match_row, home=True)
-    scorecard(match_row=match_row, home=False)
+    if mobile_site:
+        scorecard_mobile(match_row=match_row, home=True)
+        scorecard_mobile(match_row=match_row, home=False)
+        match_report_mobile(match_row=match_row)
+    else:
+        scorecard(match_row=match_row, home=True)
+        scorecard(match_row=match_row, home=False)
+        match_report(match_row=match_row)
     
-    match_report(match_row=match_row)
     
-    st.markdown(f"<br><br>", unsafe_allow_html=True)
+    if mobile_site is False:
+        st.markdown(f"<br><br>", unsafe_allow_html=True)
     
-    lineups(match_row=match_row)
+    lineups(match_row=match_row, mobile_site=mobile_site)

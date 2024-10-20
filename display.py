@@ -4,7 +4,7 @@ import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
 from streamlit_folium import st_folium, folium_static
 
-from style import pitch_style, scorecard_style
+from style import match_report_mobile_style, pitch_style, scorecard_style, scorecard_mobile_style
 
 
 def scorecard(match_row: pd.Series, home: bool=True) -> None:
@@ -47,6 +47,56 @@ def scorecard(match_row: pd.Series, home: bool=True) -> None:
         st.markdown("</div>", unsafe_allow_html=True)
     
     return
+
+import base64
+from pathlib import Path
+from streamlit.components.v1 import html
+
+
+def img_to_bytes(img_path):
+    img_bytes = Path(img_path).read_bytes()
+    encoded = base64.b64encode(img_bytes).decode()
+    return encoded
+
+
+def img_to_html(img_path):
+    img_html = f'<img src="data:image/png;base64,{img_to_bytes(img_path)}" style="width: 60px; height: auto;">'
+    return img_html
+
+
+def scorecard_mobile(match_row: pd.Series, home: bool=True) -> None:
+    """ 
+    Display scorecard
+    """
+    ### Scorecard ###
+    if home:
+        badge_image = "images/clubs/merseyvalley.png"
+        team_name = f"Mersey Valley {match_row['Team']}"
+        goals = match_row['goals_for']
+        scorers_formatted = match_row['scorers_formatted'].replace('\n', '<br>')
+        scorers = f"<p class='scorers-text-mob'>{scorers_formatted}</p>"
+        
+    else: 
+        badge_image = match_row['badge_image']
+        team_name = match_row['Opposition']
+        goals = match_row['goals_against']
+        scorers = ""
+        
+    # Use markdown for layout instead of st.columns
+    st.markdown(scorecard_mobile_style, unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="container-mob">
+        <div style="display: flex; align-items: center;">
+            {img_to_html(badge_image)}
+            <p class="team-text-mob" style="margin-left: 10px;">{team_name}</p>
+        </div>
+        <p class="goals-text-mob">{goals}</p>
+    </div>
+    {scorers}
+    """, unsafe_allow_html=True)
+ 
+    return
+
 
 def build_map(match_row: pd.Series) -> None:    
     """
@@ -105,10 +155,45 @@ def match_report(match_row: pd.Series) -> None:
                 """, unsafe_allow_html=True)
         
         # Match Report
-        st.markdown(f"<br><b>Match Details:</b><br>{match_row['match_report']}".replace("\n", "<br>"), unsafe_allow_html=True)
+        if match_row['match_report'] != "":
+            st.markdown(f"<br><b>Match Details:</b><br>{match_row['match_report']}".replace("\n", "<br>"), unsafe_allow_html=True)
         
     with col_map:
         build_map(match_row)
+    
+    return
+
+
+def match_report_mobile(match_row: pd.Series) -> None:
+    """
+    Build & display the Match Report for Mobile
+    """
+    st.markdown(f"<br><br>", unsafe_allow_html=True)
+    st.markdown("## Match Report:")
+    st.markdown(f"""
+                    <p>
+                    <b>Date:</b> {match_row['formatted_date']}
+                    <br><b>Age Group:</b> {match_row['AgeGroup']}
+                    <br><b>Competition:</b> {match_row['Competition']}
+                    <br><b>Venue:</b> {match_row['Location']}
+                """, unsafe_allow_html=True)
+    build_map(match_row)
+    
+    # Weather
+    st.markdown(match_report_mobile_style, unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="container-mr-mob">
+        <div style="display: flex; align-items: center;">
+            {img_to_html(match_row['weather_image'])}
+            <p class="weather-text-mob" style="margin-left: 40px;"><b>Weather:</b> {match_row['weather_description']}
+                <br><b>Temperature:</b> {match_row['temperature']}°C</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Match Report
+    if match_row['match_report'] != "":
+        st.markdown(f"<br><b>Match Details:</b><br>{match_row['match_report']}".replace("\n", "<br>"), unsafe_allow_html=True)
     
     return
 
@@ -165,7 +250,7 @@ def teamsheet_graphic(match_row: pd.Series) -> None:
                 st.image(shirt_image, width=60, caption=match_row['LA'])
 
 
-def lineups(match_row: pd.Series) -> None:
+def lineups(match_row: pd.Series, mobile_site: bool) -> None:
     """
     Build Lineup and team sheet output
     """
@@ -175,5 +260,6 @@ def lineups(match_row: pd.Series) -> None:
         if match_row['subs_list'] != "":
             st.markdown(f"**Subs:**<br>{match_row['subs_list']}".replace("\n", "<br>"), unsafe_allow_html=True)   
     
-    with col_graphic:  
-        teamsheet_graphic(match_row)
+    with col_graphic:
+        if mobile_site is False:  
+            teamsheet_graphic(match_row)

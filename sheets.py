@@ -5,7 +5,7 @@ import streamlit as st
 
 
 @st.cache_data(ttl=900) 
-def get_sheet_data(sheet_name: str) -> pd.DataFrame: 
+def get_data(sheet_name: str) -> pd.DataFrame: 
     """
     Call Google Sheets and return dataframe
     """
