@@ -12,7 +12,7 @@ def scorecard(match_row: pd.Series, home: bool=True) -> None:
     Display scorecard
     """
     ### Scorecard ###
-    col_badge, col_team, col_score, = st.columns([1, 6, 3])
+    col_badge, col_team, col_score, = st.columns([1, 4, 2])
     st.markdown(scorecard_style, unsafe_allow_html=True)
 
     if home:
@@ -27,7 +27,7 @@ def scorecard(match_row: pd.Series, home: bool=True) -> None:
     # Column 1: Badge Image 
     with col_badge:
         st.markdown("<div class='column-container'>", unsafe_allow_html=True)
-        st.image(badge_image, width=60)
+        st.image(badge_image, width=80)
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Column 2: Team Name/Scorers
@@ -73,7 +73,7 @@ def build_map(match_row: pd.Series) -> None:
         fill_opacity=0.9
     ).add_to(mymap)
 
-    folium_static(mymap, width=300, height=250)
+    folium_static(mymap, width=300, height=275)
 
     return
 
@@ -84,7 +84,7 @@ def match_report(match_row: pd.Series) -> None:
     """
     st.markdown("### Match Report:")
     
-    col_text, col_map = st.columns([38,30])
+    col_text, col_map = st.columns([32,30])
     with col_text:
         st.markdown(f"""
                     <p>
@@ -94,18 +94,18 @@ def match_report(match_row: pd.Series) -> None:
                     <br><b>Venue:</b> {match_row['Location']}
             """, unsafe_allow_html=True)
  
-        col_weather_img, col_weather_desc = st.columns([6,32])
+        col_weather_img, col_weather_desc = st.columns([10,42])
         with col_weather_img:
             st.image(match_row['weather_image'], width=50)
         with col_weather_desc:
              st.markdown(f"""
                     <p>
                     <b>Weather:</b> {match_row['weather_description']}
-                    <br><b>Temperature:</b> {match_row['temperature']} °C
+                    <br><b>Temperature:</b> {match_row['temperature']}°C
                 """, unsafe_allow_html=True)
         
         # Match Report
-        st.markdown(f"<p>{match_row['match_report']}".replace("\n", "<br>"), unsafe_allow_html=True)
+        st.markdown(f"<br><b>Match Details:</b><br>{match_row['match_report']}".replace("\n", "<br>"), unsafe_allow_html=True)
         
     with col_map:
         build_map(match_row)

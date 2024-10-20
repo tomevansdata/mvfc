@@ -19,6 +19,7 @@ scorecard_style = """
         text-align: right
     }
     .scorers-text {
+        font-size: 18px;
         line-height: 1.2;
     }
     </style>
