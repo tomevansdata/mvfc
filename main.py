@@ -65,8 +65,8 @@ if selected_match and selected_match != "All":
         scorecard(match_row=match_row, home=True)
         scorecard(match_row=match_row, home=False)
         match_report(match_row=match_row)
-    
-    
+
+
     if mobile_site is False:
         st.markdown(f"<br><br>", unsafe_allow_html=True)
     

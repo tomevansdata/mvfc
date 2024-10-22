@@ -2,14 +2,14 @@ scorecard_style = """
     <style>
     .column-container {
         display: flex;
-        align-items: flex-start;  /* Align items to the top of the container */
+        align-items: flex-start;
     }
     .team-text {
         font-size: 36px;
         font-weight: bold;
         margin-bottom: 0px;
         line-height: 1.2;
-        padding-top: 0px;  /* Remove unnecessary padding */
+        padding-top: 0px;
     }
     .goals-text {
         font-size: 36px;

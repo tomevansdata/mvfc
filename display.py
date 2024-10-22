@@ -1,6 +1,9 @@
+import base64
 import folium
 import pandas as pd
+from pathlib import Path
 import streamlit as st
+from streamlit.components.v1 import html
 from streamlit_extras.stylable_container import stylable_container
 from streamlit_folium import st_folium, folium_static
 
@@ -47,10 +50,6 @@ def scorecard(match_row: pd.Series, home: bool=True) -> None:
         st.markdown("</div>", unsafe_allow_html=True)
     
     return
-
-import base64
-from pathlib import Path
-from streamlit.components.v1 import html
 
 
 def img_to_bytes(img_path):

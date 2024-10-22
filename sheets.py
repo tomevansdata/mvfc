@@ -13,7 +13,6 @@ def get_data(sheet_name: str) -> pd.DataFrame:
     
     google_sheets_creds = st.secrets["google_sheets"]
     
-    #creds = ServiceAccountCredentials.from_json_keyfile_name("creds/tom_mvfc.json", scope)
     creds = ServiceAccountCredentials.from_json_keyfile_dict(google_sheets_creds, scope)
     client = gspread.authorize(creds)
 
