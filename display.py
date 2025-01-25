@@ -255,10 +255,13 @@ def lineups(match_row: pd.Series, mobile_site: bool) -> None:
     """
     col_text, col_graphic = st.columns([1,3])
     with col_text:
-        st.markdown(f"**Lineup:**<br>{match_row['lineup']}".replace("\n", "<br>"), unsafe_allow_html=True)   
-        if match_row['subs_list'] != "":
-            st.markdown(f"**Subs:**<br>{match_row['subs_list']}".replace("\n", "<br>"), unsafe_allow_html=True)   
+        if match_row['lineup'] != "":
+            st.markdown(f"**Lineup:**<br>{match_row['lineup']}".replace("\n", "<br>"), unsafe_allow_html=True)
+            if match_row['subs_list'] != "":
+                st.markdown(f"**Subs:**<br>{match_row['subs_list']}".replace("\n", "<br>"), unsafe_allow_html=True)   
+        else:
+            st.markdown(f"**Squad:**<br>{match_row['squad_list']}".replace("\n", "<br>"), unsafe_allow_html=True)   
     
     with col_graphic:
-        if mobile_site is False:  
+        if mobile_site is False and match_row['lineup'] != "":  
             teamsheet_graphic(match_row)
