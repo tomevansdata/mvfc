@@ -21,11 +21,11 @@ def scorecard(match_row: pd.Series, home: bool=True) -> None:
     if home:
         badge_image = "images/clubs/merseyvalley.png"
         team_name = f"Mersey Valley {match_row['Team']}"
-        goals = match_row['goals_for']
+        goals = match_row['goals_for_display']
     else: 
         badge_image = match_row['badge_image']
         team_name = match_row['Opposition']
-        goals = match_row['goals_against']
+        goals = match_row['goals_against_display']
         
     # Column 1: Badge Image 
     with col_badge:
@@ -71,14 +71,14 @@ def scorecard_mobile(match_row: pd.Series, home: bool=True) -> None:
     if home:
         badge_image = "images/clubs/merseyvalley.png"
         team_name = f"Mersey Valley {match_row['Team']}"
-        goals = match_row['goals_for']
+        goals = match_row['goals_for_display']
         scorers_formatted = match_row['scorers_formatted'].replace('\n', '<br>')
         scorers = f"<p class='scorers-text-mob'>{scorers_formatted}</p>"
         
     else: 
         badge_image = match_row['badge_image']
         team_name = match_row['Opposition']
-        goals = match_row['goals_against']
+        goals = match_row['goals_against_display']
         scorers = ""
         
     # Use markdown for layout instead of st.columns
@@ -140,6 +140,7 @@ def match_report(match_row: pd.Series) -> None:
                     <b>Date:</b> {match_row['formatted_date']}
                     <br><b>Age Group:</b> {match_row['AgeGroup']}
                     <br><b>Competition:</b> {match_row['Competition']}
+                    <br><b>KO:</b> {match_row['Time']}
                     <br><b>Venue:</b> {match_row['Location']}
             """, unsafe_allow_html=True)
  
@@ -174,6 +175,7 @@ def match_report_mobile(match_row: pd.Series) -> None:
                     <b>Date:</b> {match_row['formatted_date']}
                     <br><b>Age Group:</b> {match_row['AgeGroup']}
                     <br><b>Competition:</b> {match_row['Competition']}
+                    <br><b>KO:</b> {match_row['Time']}
                     <br><b>Venue:</b> {match_row['Location']}
                 """, unsafe_allow_html=True)
     build_map(match_row)

@@ -54,12 +54,13 @@ filtered_df = filtered_df.rename(columns={
     "won": "W",
     "drew": "D",
     "lost": "L",
+    "unknown": "U",
     "goals_for": "GF",
     "goals_against": "GA",
     })
 filtered_df["Played"] = 1
 
-team_df = filtered_df[['Team', 'Played', 'W', 'D', 'L', 'GF', 'GA']].groupby('Team').sum()
+team_df = filtered_df[['Team', 'Played', 'W', 'D', 'L', 'U', 'GF', 'GA']].groupby('Team').sum()
 total_row = pd.DataFrame(team_df.sum(axis=0)).T
 total_row.index = ['Total']
 
