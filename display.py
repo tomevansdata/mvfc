@@ -67,6 +67,7 @@ def scorecard_mobile(match_row: pd.Series, home: bool=True) -> None:
     """ 
     Display scorecard
     """
+    print(match_row)
     ### Scorecard ###
     if home:
         badge_image = "images/clubs/merseyvalley.png"
@@ -127,7 +128,7 @@ def build_map(match_row: pd.Series) -> None:
     return
 
 
-def match_report(match_row: pd.Series) -> None:
+def match_report(match_row: pd.Series, away=None) -> None:
     """
     Build & display the Match Report
     """
@@ -157,6 +158,8 @@ def match_report(match_row: pd.Series) -> None:
         # Match Report
         if match_row['match_report'] != "":
             st.markdown(f"<br><b>Match Details:</b><br>{match_row['match_report']}".replace("\n", "<br>"), unsafe_allow_html=True)
+        if away is not None:
+            st.markdown(f"{away}".replace("\n", "<br>"), unsafe_allow_html=True)
         
     with col_map:
         build_map(match_row)
@@ -258,11 +261,11 @@ def lineups(match_row: pd.Series, mobile_site: bool) -> None:
     col_text, col_graphic = st.columns([1,3])
     with col_text:
         if match_row['lineup'] != "":
-            st.markdown(f"**Lineup:**<br>{match_row['lineup']}".replace("\n", "<br>"), unsafe_allow_html=True)
+            st.markdown(f"**{match_row['Team']} Lineup:**<br>{match_row['lineup']}".replace("\n", "<br>"), unsafe_allow_html=True)
             if match_row['subs_list'] != "":
                 st.markdown(f"**Subs:**<br>{match_row['subs_list']}".replace("\n", "<br>"), unsafe_allow_html=True)   
         else:
-            st.markdown(f"**Squad:**<br>{match_row['squad_list']}".replace("\n", "<br>"), unsafe_allow_html=True)   
+            st.markdown(f"**{match_row['Team']} Squad:**<br>{match_row['squad_list']}".replace("\n", "<br>"), unsafe_allow_html=True)   
     
     with col_graphic:
         if mobile_site is False and match_row['lineup'] != "":  
