@@ -167,7 +167,7 @@ def match_report(match_row: pd.Series, away=None) -> None:
     return
 
 
-def match_report_mobile(match_row: pd.Series) -> None:
+def match_report_mobile(match_row: pd.Series, away=None) -> None:
     """
     Build & display the Match Report for Mobile
     """
@@ -198,6 +198,9 @@ def match_report_mobile(match_row: pd.Series) -> None:
     # Match Report
     if match_row['match_report'] != "":
         st.markdown(f"<br><b>Match Details:</b><br>{match_row['match_report']}".replace("\n", "<br>"), unsafe_allow_html=True)
+    if away is not None:
+        st.markdown(f"{away}".replace("\n", "<br>"), unsafe_allow_html=True)
+        
     
     return
 

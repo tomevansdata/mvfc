@@ -78,8 +78,7 @@ if selected_match and selected_match != "All":
         scorecard_mobile(match_row=match_row, home=True)
         if is_linked:
             scorecard_mobile(match_row=match_row_away, home=True)
-            match_report_mobile(match_row=match_row)
-            match_report_mobile(match_row=match_row_away)
+            match_report(match_row=match_row, away=match_row_away["match_report"])
         else:
             scorecard_mobile(match_row=match_row, home=False)
             match_report_mobile(match_row=match_row)
@@ -91,7 +90,6 @@ if selected_match and selected_match != "All":
         else:
             scorecard(match_row=match_row, home=False)
             match_report(match_row=match_row)
-
 
     if mobile_site is False:
         st.markdown(f"<br><br>", unsafe_allow_html=True)
