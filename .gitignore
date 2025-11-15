@@ -58,3 +58,4 @@ _scratch/
 *poetry.lock
 .streamlit
 scratch.py
+.devcontainer/
