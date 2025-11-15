@@ -57,3 +57,4 @@ junit.xml
 _scratch/
 *poetry.lock
 .streamlit
+scratch.py
