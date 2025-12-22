@@ -4,3 +4,4 @@ streamlit_folium
 streamlit_js_eval
 gspread
 oauth2client
+databricks-sql-connector

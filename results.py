@@ -6,7 +6,7 @@ from functions import get_match_list, get_match_data, apply_filters
 from style import match_report_mobile_style, pitch_style, scorecard_style, scorecard_mobile_style
 
 
-st.set_page_config(layout="wide", page_title='MVFC: Team Stats', page_icon = 'images/clubs/merseyvalley.png')
+st.set_page_config(layout="wide", page_title='MVFC: Results', page_icon = 'images/clubs/merseyvalley.png')
 
 screen_width = streamlit_js_eval(js_expressions='screen.width', key = 'SCR')
 mobile_site = False
@@ -28,6 +28,10 @@ st.markdown(f"""
 
 ### Get Data ###
 df = get_match_list()
+# for m in matches:
+#     if st.button(f"View report vs {m['opponent']}", key=m["match_id"]):
+#         query_params = {"match_id" : str(m["match_id"])}
+#         st.switch_page("reports.py", query_params=query_params)
 
 ### Apply reusable filters
 filtered_df, filters = apply_filters(df)

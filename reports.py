@@ -1,15 +1,13 @@
-import numpy as np
 import pandas as pd
 import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
 
-from display import lineups, match_report, match_report_mobile, scorecard, scorecard_mobile
-from sheets import get_data
+from display import scorecard
+from functions import get_match_list, get_match_data, apply_filters
+from style import match_report_mobile_style, pitch_style, scorecard_style, scorecard_mobile_style
+
 
 st.set_page_config(layout="wide", page_title='MVFC: Match Reports', page_icon = 'images/clubs/merseyvalley.png')
-
-### Get Data ###
-df = get_data("MatchData")
 
 screen_width = streamlit_js_eval(js_expressions='screen.width', key = 'SCR')
 mobile_site = False
@@ -29,72 +27,42 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-### Header ###
-st.image("images/misc/mersey_valley_football_club_cover.jpeg")
+query_params = st.query_params
+match_id_nav = query_params.get("match_id", None)
 
-### Filters ###
+### Get Data ###
+df = get_match_list()
 
-month_year_combinations = sorted(df['month_year'].unique(), key=lambda x: pd.to_datetime(x))
-
-age_group = st.selectbox("Select Age Group:", options=["All"] + list(df["AgeGroup"].unique()))
-team_name = st.selectbox("Select Team :", options=["All"] + list(df["Team"].unique()))
-competition = st.selectbox("Select Competition:", options=["All"] + list(df["Competition"].unique()))
-selected_date = st.selectbox("Select Date:", options=["All"] + month_year_combinations)
-
-filtered_df = df.copy()
-
-## Remove linked matches
-filtered_df['LinkedMatchID'] = pd.to_numeric(filtered_df['LinkedMatchID'], errors='coerce')
-filtered_df['PairGroup'] = np.minimum(filtered_df['MatchID'], filtered_df['LinkedMatchID'].fillna(filtered_df['MatchID']))
-filtered_df = filtered_df.sort_values('MatchID')
-filtered_df = filtered_df.drop_duplicates(subset='PairGroup', keep='first').drop(columns='PairGroup')
-
-if age_group != "All":
-    filtered_df = filtered_df[filtered_df["AgeGroup"] == age_group]
-if team_name != "All":
-    filtered_df = filtered_df[filtered_df["Team"] == team_name]
-if competition != "All":
-    filtered_df = filtered_df[filtered_df["Competition"] == competition]
-if selected_date != "All":
-    filtered_df = filtered_df[filtered_df["month_year"] == selected_date]
+### Apply reusable filters
+filtered_df, filters = apply_filters(df)
 
 ### Match Selector ###
-selected_match = st.selectbox("Select a Match", options=["All"] + sorted(filtered_df["Match_Desc"], reverse=True))
+selected_match = st.selectbox("Select a Match", options=["Please select..."] + sorted(filtered_df["match_header"], reverse=True))
 
 ### Match Report
-if selected_match and selected_match != "All":
-    
-    match_row = filtered_df[filtered_df["Match_Desc"] == selected_match].iloc[0]
-    is_linked = pd.notnull(match_row['LinkedMatchID'])
-    if is_linked:
-        match_row['LinkedMatchID'] = int(match_row['LinkedMatchID'])
-        match_row_away = df[df["MatchID"] == match_row['LinkedMatchID']]
-        if not match_row_away.empty:
-            match_row_away = match_row_away.iloc[0]  
-        else:
-            match_row_away = None
-    
-    if mobile_site:
-        scorecard_mobile(match_row=match_row, home=True)
-        if is_linked:
-            scorecard_mobile(match_row=match_row_away, home=True)
-            match_report(match_row=match_row, away=match_row_away["match_report"])
-        else:
-            scorecard_mobile(match_row=match_row, home=False)
-            match_report_mobile(match_row=match_row)
+if (selected_match and selected_match != "Please select...") or match_id_nav:
+       
+    if match_id_nav:
+        st.write(match_id_nav)
+        match_id = int(match_id_nav)
     else:
-        scorecard(match_row=match_row, home=True)
-        if is_linked:
-            scorecard(match_row=match_row_away, home=True)
-            match_report(match_row=match_row, away=match_row_away["match_report"])
-        else:
-            scorecard(match_row=match_row, home=False)
-            match_report(match_row=match_row)
-
-    if mobile_site is False:
-        st.markdown(f"<br><br>", unsafe_allow_html=True)
+        match_select_row = filtered_df[filtered_df["match_header"] == selected_match].iloc[0]
+        match_id = match_select_row['match_id']
     
-    if match_row["Score"] != "A-A":
-        lineups(match_row=match_row, mobile_site=mobile_site)
-        if is_linked:
-             lineups(match_row=match_row_away, mobile_site=mobile_site)
+    st.write(f"Selected Match ID: {match_id}")
+    match_df = get_match_data(match_id)
+    match_row = match_df.iloc[0]
+
+    if match_row["mv_home_display"]:
+        scorecard(match_row=match_row, mv=True)
+        scorecard(match_row=match_row, mv=False)
+    else:
+        scorecard(match_row=match_row, mv=False)
+        scorecard(match_row=match_row, mv=True)
+        
+    st.markdown(f"<br><br>", unsafe_allow_html=True)
+    
+    st.map({
+        "lat": [match_row["lat"]],
+        "lon": [match_row["lon"]],
+    }, zoom=15, color=match_row["location_colour"], size = 25)

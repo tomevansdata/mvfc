@@ -59,3 +59,4 @@ _scratch/
 .streamlit
 scratch.py
 .devcontainer/
+old_*
