@@ -12,11 +12,26 @@ def get_match_list() -> pd.DataFrame:
         CASE WHEN competition_main_name = 'Friendly' THEN 'Friendly' 
         ELSE concat(competition_main_name,': ', competition_sub_name) END AS competition,
         mv_team AS team,
+        competition_main_name,
+        competition_sub_name,
         match_date, 
         match_header,
         match_id
     FROM workspace.mvfc.vw_match_facts;
     """
+    return execute_query(q)
+
+
+@st.cache_data(ttl="1h")
+def get_match_list_detailed() -> pd.DataFrame:
+    q = """
+    SELECT 
+        CASE WHEN competition_main_name = 'Friendly' THEN 'Friendly' 
+        ELSE concat(competition_main_name,': ', competition_sub_name) END AS competition,
+        mv_team AS team,
+        *
+    FROM workspace.mvfc.vw_match_list_st;
+    """ 
     return execute_query(q)
 
 
@@ -44,6 +59,8 @@ def apply_filters(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         st.session_state.team_filter = "All"
     if "competition_filter" not in st.session_state:
         st.session_state.competition_filter = "All"
+    if "sub_competition_filter" not in st.session_state:
+        st.session_state.sub_competition_filter = "All"
     if "date_filter" not in st.session_state:
         st.session_state.date_filter = (df['match_date'].min(), df['match_date'].max())
     
@@ -52,10 +69,11 @@ def apply_filters(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     with col1:
         st.sidebar.markdown("### Filters")
     with col2:
-        if st.sidebar.button("🔄 Reset", key="reset_filters"):
+        if st.sidebar.button("Reset Filters", key="reset_filters"):
             st.session_state.age_group_filter = "All"
             st.session_state.team_filter = "All"
             st.session_state.competition_filter = "All"
+            st.session_state.sub_competition_filter = "All"
             st.session_state.date_filter = (df['match_date'].min(), df['match_date'].max())
             st.rerun()
     
@@ -63,34 +81,38 @@ def apply_filters(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     st.session_state.age_group_filter = st.sidebar.selectbox(
         "Select Age Group:", 
         options=["All"] + sorted(df["age_group"].unique()),
-        index=["All"] + sorted(df["age_group"].unique()).tolist().index(st.session_state.age_group_filter) 
-              if st.session_state.age_group_filter in ["All"] + sorted(df["age_group"].unique()).tolist() else 0,
-        key="age_group_filter"
+        index=(0 if st.session_state.age_group_filter == "All" 
+               else sorted(df["age_group"].unique()).index(st.session_state.age_group_filter) + 1)
     )
+    
     
     st.session_state.team_filter = st.sidebar.selectbox(
         "Select Team:", 
         options=["All"] + sorted(df["team"].unique()),
-        index=["All"] + sorted(df["team"].unique()).tolist().index(st.session_state.team_filter) 
-              if st.session_state.team_filter in ["All"] + sorted(df["team"].unique()).tolist() else 0,
-        key="team_filter"
+        index=(0 if st.session_state.team_filter == "All" 
+               else sorted(df["team"].unique()).index(st.session_state.team_filter) + 1)
     )
     
     st.session_state.competition_filter = st.sidebar.selectbox(
-        "Select Competition:", 
-        options=["All"] + sorted(df["competition"].unique()),
-        index=["All"] + sorted(df["competition"].unique()).tolist().index(st.session_state.competition_filter) 
-              if st.session_state.competition_filter in ["All"] + sorted(df["competition"].unique()).tolist() else 0,
-        key="competition_filter"
+        "Select Main Competition:", 
+        options=["All"] + sorted(df["competition_main_name"].unique()),
+        index=(0 if st.session_state.competition_filter == "All" 
+               else sorted(df["competition_main_name"].unique()).index(st.session_state.competition_filter) + 1)
     )
     
+    st.session_state.sub_competition_filter = st.sidebar.selectbox(
+        "Select Sub Competition:", 
+        options=["All"] + sorted(df["competition_sub_name"].unique()),
+        index=(0 if st.session_state.sub_competition_filter == "All" 
+               else sorted(df["competition_sub_name"].unique()).index(st.session_state.sub_competition_filter) + 1)
+    )
+ 
     st.session_state.date_filter = st.sidebar.slider(
         "Select Date:", 
         min_value=df['match_date'].min(), 
         max_value=df['match_date'].max(), 
         value=st.session_state.date_filter,
-        format="DD/MM/YYYY",
-        key="date_filter"
+        format="DD/MM/YYYY"
     )
     
     # Apply filters to dataframe
@@ -101,8 +123,10 @@ def apply_filters(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     if st.session_state.team_filter != "All":
         filtered_df = filtered_df[filtered_df["team"] == st.session_state.team_filter]
     if st.session_state.competition_filter != "All":
-        filtered_df = filtered_df[filtered_df["competition"] == st.session_state.competition_filter]
-    
+        filtered_df = filtered_df[filtered_df["competition_main_name"] == st.session_state.competition_filter]
+    if st.session_state.sub_competition_filter != "All":
+        filtered_df = filtered_df[filtered_df["competition_sub_name"] == st.session_state.sub_competition_filter]
+
     try:
         start_date, end_date = st.session_state.date_filter
         filtered_df = filtered_df[(filtered_df['match_date'] >= start_date) & (filtered_df['match_date'] <= end_date)]
@@ -112,7 +136,8 @@ def apply_filters(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     filter_dict = {
         "age_group": st.session_state.age_group_filter,
         "team_name": st.session_state.team_filter,
-        "competition": st.session_state.competition_filter,
+        "competition_main_name": st.session_state.competition_filter,
+        "competition_sub_name": st.session_state.sub_competition_filter,
         "selected_date": st.session_state.date_filter
     }
     

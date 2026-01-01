@@ -52,6 +52,21 @@ scorecard_mobile_style = """
     </style>
 """
 
+scorecard_mini_style = """
+    <style>
+    .column-container {
+        display: flex;
+        align-items: flex-start;
+        font-size: 14px; 
+        line-height: 1.4;
+        padding-top: 0px;
+    }
+    .goals-text {
+        text-align: right
+    }
+    </style>
+"""
+
 match_report_mobile_style = """
     <style>
     .container-mr-mob {
